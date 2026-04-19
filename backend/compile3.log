@@ -1,0 +1,46 @@
+﻿[INFO] Scanning for projects...
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building stock-review 1.0.0
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:3.2.0:clean (default-clean) @ stock-review ---
+[INFO] Deleting E:\traeProjects\stockBack0212\backend\target
+[INFO] 
+[INFO] --- maven-resources-plugin:3.2.0:resources (default-resources) @ stock-review ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] Copying 1 resource
+[INFO] Copying 1 resource
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.10.1:compile (default-compile) @ stock-review ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 49 source files to E:\traeProjects\stockBack0212\backend\target\classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /E:/traeProjects/stockBack0212/backend/src/main/java/com/stock/review/service/impl/StockInfoServiceImpl.java:[27,56] 从lambda 表达式引用的本地变量必须是最终变量或实际上的最终变量
+[ERROR] /E:/traeProjects/stockBack0212/backend/src/main/java/com/stock/review/service/impl/StockInfoServiceImpl.java:[29,56] 从lambda 表达式引用的本地变量必须是最终变量或实际上的最终变量
+[ERROR] /E:/traeProjects/stockBack0212/backend/src/main/java/com/stock/review/service/impl/StockInfoServiceImpl.java:[31,53] 从lambda 表达式引用的本地变量必须是最终变量或实际上的最终变量
+[ERROR] /E:/traeProjects/stockBack0212/backend/src/main/java/com/stock/review/service/impl/StockInfoServiceImpl.java:[33,58] 从lambda 表达式引用的本地变量必须是最终变量或实际上的最终变量
+[INFO] 4 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 9.990 s
+[INFO] Finished at: 2026-02-12T18:20:28+08:00
+[INFO] Final Memory: 29M/264M
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.10.1:compile (default-compile) on project stock-review: Compilation failure: Compilation failure:
+[ERROR] /E:/traeProjects/stockBack0212/backend/src/main/java/com/stock/review/service/impl/StockInfoServiceImpl.java:[27,56] 从lambda 表达式引用的本地变量必须是最终变量或实际上的最终变量
+[ERROR] /E:/traeProjects/stockBack0212/backend/src/main/java/com/stock/review/service/impl/StockInfoServiceImpl.java:[29,56] 从lambda 表达式引用的本地变量必须是最终变量或实际上的最终变量
+[ERROR] /E:/traeProjects/stockBack0212/backend/src/main/java/com/stock/review/service/impl/StockInfoServiceImpl.java:[31,53] 从lambda 表达式引用的本地变量必须是最终变量或实际上的最终变量
+[ERROR] /E:/traeProjects/stockBack0212/backend/src/main/java/com/stock/review/service/impl/StockInfoServiceImpl.java:[33,58] 从lambda 表达式引用的本地变量必须是最终变量或实际上的最终变量
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

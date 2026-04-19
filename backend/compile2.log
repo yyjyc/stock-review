@@ -1,0 +1,41 @@
+﻿[INFO] Scanning for projects...
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building stock-review 1.0.0
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-resources-plugin:3.2.0:resources (default-resources) @ stock-review ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Using 'UTF-8' encoding to copy filtered properties files.
+[INFO] Copying 1 resource
+[INFO] Copying 1 resource
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.10.1:compile (default-compile) @ stock-review ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 49 source files to E:\traeProjects\stockBack0212\backend\target\classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /E:/traeProjects/stockBack0212/backend/src/main/java/com/stock/review/service/impl/StockInfoServiceImpl.java:[19,24] 找不到符号
+  符号:   方法 of()
+  位置: 接口 java.util.List
+[INFO] 1 error
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 9.411 s
+[INFO] Finished at: 2026-02-12T18:19:36+08:00
+[INFO] Final Memory: 30M/350M
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.10.1:compile (default-compile) on project stock-review: Compilation failure
+[ERROR] /E:/traeProjects/stockBack0212/backend/src/main/java/com/stock/review/service/impl/StockInfoServiceImpl.java:[19,24] 找不到符号
+[ERROR] 符号:   方法 of()
+[ERROR] 位置: 接口 java.util.List
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
