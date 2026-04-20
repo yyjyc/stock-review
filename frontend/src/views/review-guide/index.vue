@@ -148,6 +148,12 @@ const nextStep = () => {
     
     if (currentStep.value === 4) {
       collectReviewData()
+      // 进入汇总页面时刷新数据
+      setTimeout(() => {
+        if (summaryRef.value) {
+          summaryRef.value.refreshData()
+        }
+      }, 100)
     }
   }
 }
@@ -216,6 +222,11 @@ const loadProgress = () => {
 watch(currentStep, (newVal) => {
   if (reviewStarted.value) {
     emitStepChange(newVal)
+    
+    // 切换到汇总页面时刷新数据
+    if (newVal === 4 && summaryRef.value) {
+      summaryRef.value.refreshData()
+    }
   }
 })
 

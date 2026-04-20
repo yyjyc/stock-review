@@ -244,6 +244,8 @@ import {
 } from '@/api/operation'
 import { getTodayPlans, getPlansByDateRange, executePlan, markAsNotExecuted } from '@/api/plan'
 
+const emit = defineEmits(['complete'])
+
 const loading = ref(false)
 const tableLoading = ref(false)
 const tableData = ref([])
@@ -381,6 +383,8 @@ const handleExecute = async (plan) => {
     loadPlans()
     loadTableData()
     loadStatistics()
+    // 触发完成事件
+    emit('complete')
   } finally {
     plan.executing = false
   }

@@ -26,3 +26,7 @@ mybatis-plus:
 logging:
   level:
     com.stock.review: info
+
+jwt:
+  secret: stock-review-jwt-secret-key-must-be-at-least-256-bits-long-for-hmac-sha256
+  expiration: 86400000

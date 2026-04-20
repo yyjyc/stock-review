@@ -1,6 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { getToken } from '@/utils/auth'
 
 const routes = [
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/views/login/index.vue'),
+    meta: { public: true }
+  },
   {
     path: '/',
     redirect: '/review-guide'
@@ -33,13 +40,42 @@ const routes = [
   {
     path: '/settings',
     name: 'Settings',
-    component: () => import('@/views/settings/index.vue')
+    component: () => import('@/views/settings/index.vue'),
+    meta: { requireAdmin: true }
+  },
+  {
+    path: '/admin/users',
+    name: 'UserManagement',
+    component: () => import('@/views/admin/UserManagement.vue'),
+    meta: { requireAdmin: true }
   }
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+const publicPaths = ['/login']
+
+router.beforeEach(async (to, from, next) => {
+  const token = getToken()
+
+  if (publicPaths.includes(to.path)) {
+    if (token) {
+      next('/')
+      return
+    }
+    next()
+    return
+  }
+
+  if (!token) {
+    next('/login')
+    return
+  }
+
+  next()
 })
 
 export default router

@@ -12,6 +12,7 @@ import com.stock.review.entity.dto.StockOperationDTO;
 import com.stock.review.mapper.StockOperationMapper;
 import com.stock.review.service.PositionService;
 import com.stock.review.service.StockOperationService;
+import com.stock.review.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,7 @@ public class StockOperationServiceImpl extends ServiceImpl<StockOperationMapper,
         }
         
         BeanUtil.copyProperties(dto, entity);
+        entity.setUserId(SecurityUtils.getCurrentUserId());
         
         Long positionId = dto.getPositionId();
         String operationType = dto.getOperationType();
@@ -92,6 +94,8 @@ public class StockOperationServiceImpl extends ServiceImpl<StockOperationMapper,
     public Page<StockOperation> pageList(Integer pageNum, Integer pageSize, String startDate, String endDate, String stockName, Integer followRule) {
         LambdaQueryWrapper<StockOperation> wrapper = new LambdaQueryWrapper<>();
         
+        wrapper.eq(StockOperation::getUserId, SecurityUtils.getCurrentUserId());
+        
         if (StrUtil.isNotBlank(startDate)) {
             wrapper.ge(StockOperation::getOperationDate, startDate);
         }
@@ -113,8 +117,12 @@ public class StockOperationServiceImpl extends ServiceImpl<StockOperationMapper,
     public OperationStatisticsDTO getStatistics() {
         OperationStatisticsDTO dto = new OperationStatisticsDTO();
         
-        Long totalCount = count();
+        Long userId = SecurityUtils.getCurrentUserId();
+        
+        Long totalCount = count(new LambdaQueryWrapper<StockOperation>()
+                .eq(StockOperation::getUserId, userId));
         Long followRuleCount = count(new LambdaQueryWrapper<StockOperation>()
+                .eq(StockOperation::getUserId, userId)
                 .eq(StockOperation::getIsFollowRule, 1));
         Long notFollowRuleCount = totalCount - followRuleCount;
         
@@ -177,6 +185,10 @@ public class StockOperationServiceImpl extends ServiceImpl<StockOperationMapper,
     
     @Override
     public void deleteById(Long id) {
+        StockOperation entity = getById(id);
+        if (entity != null && !entity.getUserId().equals(SecurityUtils.getCurrentUserId())) {
+            throw new RuntimeException("无权删除他人数据");
+        }
         removeById(id);
     }
 }

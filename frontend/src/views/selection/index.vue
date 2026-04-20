@@ -327,6 +327,8 @@ import {
 import { searchStockLocal, getStockPrice } from '@/api/stock'
 import { getTradeDateInfo } from '@/api/tradeCalendar'
 
+const emit = defineEmits(['complete'])
+
 const formRef = ref(null)
 const experienceFormRef = ref(null)
 const reasonFormRef = ref(null)
@@ -466,6 +468,8 @@ const handleSubmit = async () => {
     ElMessage.success('提交成功')
     resetForm()
     loadTableData()
+    // 触发完成事件
+    emit('complete')
   } finally {
     loading.value = false
   }

@@ -14,6 +14,8 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ../backend/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ../backend/src/main/resources/migration_trade_plan.sql:/docker-entrypoint-initdb.d/02-trade-plan.sql:ro
+      - ../backend/src/main/resources/migration_multi_user.sql:/docker-entrypoint-initdb.d/03-multi-user.sql:ro
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     networks:
       - stock-network
@@ -39,6 +41,8 @@ services:
       MYSQL_DATABASE: stock_review
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD:-your_password_here}
+      JWT_SECRET: ${JWT_SECRET:-stock-review-jwt-secret-key-must-be-at-least-256-bits-long-for-hmac-sha256}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
     ports:
       - "8080:8080"
     networks:

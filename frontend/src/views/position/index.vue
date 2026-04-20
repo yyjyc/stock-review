@@ -474,6 +474,8 @@ import { searchStockLocal } from '@/api/stock'
 import { getAdjustReasonList } from '@/api/position'
 import { getTradeDateInfo } from '@/api/tradeCalendar'
 
+const emit = defineEmits(['complete'])
+
 const tableLoading = ref(false)
 const refreshing = ref(false)
 const searchLoading = ref(false)
@@ -685,6 +687,8 @@ const handleSavePosition = async () => {
     positionDialog.visible = false
     loadTableData()
     loadSummary()
+    // 触发完成事件
+    emit('complete')
   } finally {
     positionDialog.loading = false
   }
@@ -788,6 +792,8 @@ const handleAdjust = async () => {
     ElMessage.success('计划设置成功')
     adjustDialog.visible = false
     loadTableData()
+    // 触发完成事件
+    emit('complete')
   } finally {
     adjustDialog.loading = false
   }

@@ -1,5 +1,9 @@
 <template>
   <div class="settings-page">
+    <el-card v-if="!userStore.isAdmin()">
+      <el-empty description="仅管理员可访问系统设置" />
+    </el-card>
+    <template v-else>
     <el-card>
       <template #header>
         <div class="card-header">
@@ -54,6 +58,7 @@
         </el-col>
       </el-row>
     </el-card>
+    </template>
   </div>
 </template>
 
@@ -61,7 +66,9 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { preloadStockInfo, getPreloadStatus } from '@/api/stock'
+import { useUserStore } from '@/store/user'
 
+const userStore = useUserStore()
 const preloadStatus = ref(null)
 let pollTimer = null
 

@@ -12,6 +12,7 @@ import com.stock.review.mapper.StockSelectionMapper;
 import com.stock.review.service.PositionService;
 import com.stock.review.service.StockSelectionService;
 import com.stock.review.service.TradePlanService;
+import com.stock.review.utils.SecurityUtils;
 import com.stock.review.utils.StockApiUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,7 @@ public class StockSelectionServiceImpl extends ServiceImpl<StockSelectionMapper,
         }
         
         BeanUtil.copyProperties(dto, entity);
+        entity.setUserId(SecurityUtils.getCurrentUserId());
         entity.setOperated(0);
         
         if (entity.getPlanDate() == null && entity.getSelectionDate() != null) {
@@ -70,11 +72,16 @@ public class StockSelectionServiceImpl extends ServiceImpl<StockSelectionMapper,
     @Override
     public Page<StockSelection> pageList(Integer pageNum, Integer pageSize) {
         return page(new Page<>(pageNum, pageSize), new LambdaQueryWrapper<StockSelection>()
+                .eq(StockSelection::getUserId, SecurityUtils.getCurrentUserId())
                 .orderByDesc(StockSelection::getSelectionDate));
     }
     
     @Override
     public void deleteById(Long id) {
+        StockSelection entity = getById(id);
+        if (entity != null && !entity.getUserId().equals(SecurityUtils.getCurrentUserId())) {
+            throw new RuntimeException("无权删除他人数据");
+        }
         removeById(id);
     }
     
@@ -106,6 +113,7 @@ public class StockSelectionServiceImpl extends ServiceImpl<StockSelectionMapper,
     @Override
     public void refreshPrices() {
         List<StockSelection> selections = list(new LambdaQueryWrapper<StockSelection>()
+                .eq(StockSelection::getUserId, SecurityUtils.getCurrentUserId())
                 .eq(StockSelection::getOperated, 0));
         
         if (selections.isEmpty()) {

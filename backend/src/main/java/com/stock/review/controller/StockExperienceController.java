@@ -32,7 +32,7 @@ public class StockExperienceController {
     
     @GetMapping("/list")
     public Result<List<StockExperience>> list() {
-        return Result.success(stockExperienceService.list());
+        return Result.success(stockExperienceService.getUserList());
     }
     
     @DeleteMapping("/{id}")

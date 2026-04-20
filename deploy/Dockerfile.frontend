@@ -1,23 +1,59 @@
 FROM node:18-alpine AS builder
 
+# 设置工作目录
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci --registry=https://registry.npmmirror.com
+# 检查当前用户和权限
+RUN echo "Current user: \$(whoami)" && \
+    echo "Current directory: \$(pwd)" && \
+    ls -la /app
 
+# 复制 package.json 文件
+COPY package*.json ./
+
+# 检查文件权限
+RUN ls -la
+
+# 清理 npm 缓存
+RUN npm cache clean --force
+
+# 安装依赖（使用 --unsafe-perm 确保权限正确）
+RUN npm install --registry=https://registry.npmmirror.com --unsafe-perm
+
+# 检查 node_modules 权限
+RUN echo "=== Checking node_modules permissions ===" && \
+    ls -la node_modules/ && \
+    ls -la node_modules/.bin/ && \
+    chmod -R 755 node_modules/ && \
+    ls -la node_modules/.bin/vite || echo "vite not found"
+
+# 复制项目文件
 COPY . .
-RUN npm run build
+
+# 检查项目文件权限
+RUN echo "=== Checking project files ===" && \
+    ls -la
+
+# 执行构建（直接使用完整路径）
+RUN echo "=== Building project ===" && \
+    /app/node_modules/.bin/vite build
 
 FROM nginx:alpine
 
+# 设置时区
 RUN apk add --no-cache tzdata && \
     cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone && \
     apk del tzdata
 
+# 复制构建产物
 COPY --from=builder /app/dist /usr/share/nginx/html
+
+# 复制 nginx 配置
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# 暴露端口
 EXPOSE 80
 
+# 启动 nginx
 CMD ["nginx", "-g", "daemon off;"]

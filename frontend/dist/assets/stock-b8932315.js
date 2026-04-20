@@ -1,0 +1,1 @@
+import{q as t}from"./index-5c3957dc.js";function e(o){return t.get("/stock/search-local",{params:{keyword:o}})}function a(o){return t.get(`/stock/price/${o}`)}function s(){return t.post("/stock/preload")}function c(){return t.get("/stock/preload/status")}export{c as a,a as g,s as p,e as s};

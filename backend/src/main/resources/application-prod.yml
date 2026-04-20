@@ -28,3 +28,7 @@ logging:
     com.stock.review: info
   file:
     name: /app/logs/stock-review.log
+
+jwt:
+  secret: ${JWT_SECRET:stock-review-jwt-secret-key-must-be-at-least-256-bits-long-for-hmac-sha256}
+  expiration: ${JWT_EXPIRATION:86400000}

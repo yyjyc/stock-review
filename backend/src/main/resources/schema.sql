@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS `active_market_value` (
 -- 股票操作记录表
 CREATE TABLE IF NOT EXISTS `stock_operation` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `user_id` BIGINT NOT NULL DEFAULT 1 COMMENT '用户ID',
     `stock_name` VARCHAR(50) NOT NULL COMMENT '股票名称',
     `stock_code` VARCHAR(20) NOT NULL COMMENT '股票代码',
     `operation_type` VARCHAR(20) NOT NULL COMMENT '操作类型:建仓/清仓/加仓/减仓',
@@ -34,12 +35,14 @@ CREATE TABLE IF NOT EXISTS `stock_operation` (
     `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除:0-未删除,1-已删除',
     PRIMARY KEY (`id`),
     KEY `idx_stock_code` (`stock_code`),
-    KEY `idx_operation_date` (`operation_date`)
+    KEY `idx_operation_date` (`operation_date`),
+    KEY `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='股票操作记录表';
 
 -- 持仓表
 CREATE TABLE IF NOT EXISTS `position` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `user_id` BIGINT NOT NULL DEFAULT 1 COMMENT '用户ID',
     `stock_name` VARCHAR(50) NOT NULL COMMENT '股票名称',
     `stock_code` VARCHAR(20) NOT NULL COMMENT '股票代码',
     `hold_amount` DECIMAL(18, 2) DEFAULT 0.00 COMMENT '持仓金额',
@@ -69,12 +72,14 @@ CREATE TABLE IF NOT EXISTS `position` (
     `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除:0-未删除,1-已删除',
     PRIMARY KEY (`id`),
     KEY `idx_stock_code` (`stock_code`),
-    KEY `idx_status` (`status`)
+    KEY `idx_status` (`status`),
+    KEY `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='持仓表';
 
 -- 选股记录表
 CREATE TABLE IF NOT EXISTS `stock_selection` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `user_id` BIGINT NOT NULL DEFAULT 1 COMMENT '用户ID',
     `stock_name` VARCHAR(50) NOT NULL COMMENT '股票名称',
     `stock_code` VARCHAR(20) NOT NULL COMMENT '股票代码',
     `target_price` DECIMAL(10, 2) NOT NULL COMMENT '目标价格',
@@ -94,41 +99,48 @@ CREATE TABLE IF NOT EXISTS `stock_selection` (
     `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除:0-未删除,1-已删除',
     PRIMARY KEY (`id`),
     KEY `idx_stock_code` (`stock_code`),
-    KEY `idx_selection_date` (`selection_date`)
+    KEY `idx_selection_date` (`selection_date`),
+    KEY `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='选股记录表';
 
 -- 选股经验表
 CREATE TABLE IF NOT EXISTS `stock_experience` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `user_id` BIGINT NOT NULL DEFAULT 1 COMMENT '用户ID',
     `title` VARCHAR(100) NOT NULL COMMENT '经验标题',
     `content` TEXT NOT NULL COMMENT '经验内容',
     `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除:0-未删除,1-已删除',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='选股经验表';
 
 -- 选股理由库表
 CREATE TABLE IF NOT EXISTS `selection_reason` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `user_id` BIGINT NOT NULL DEFAULT 1 COMMENT '用户ID',
     `reason_name` VARCHAR(100) NOT NULL COMMENT '理由名称',
     `reason_content` VARCHAR(500) NOT NULL COMMENT '理由内容',
     `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除:0-未删除,1-已删除',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='选股理由库表';
 
 -- 加仓减仓理由库表
 CREATE TABLE IF NOT EXISTS `adjust_reason` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `user_id` BIGINT NOT NULL DEFAULT 1 COMMENT '用户ID',
     `reason_name` VARCHAR(100) NOT NULL COMMENT '理由名称',
     `reason_content` VARCHAR(500) NOT NULL COMMENT '理由内容',
     `reason_type` VARCHAR(20) DEFAULT 'all' COMMENT '理由类型:add-加仓,reduce-减仓,all-通用',
     `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除:0-未删除,1-已删除',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='加仓减仓理由库表';
 
 -- 股票基础信息表
@@ -174,10 +186,54 @@ CREATE TABLE IF NOT EXISTS `trade_calendar` (
     UNIQUE KEY `uk_trade_date` (`trade_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='交易日历表';
 
+-- 用户表
+CREATE TABLE IF NOT EXISTS `user` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `username` VARCHAR(50) NOT NULL COMMENT '用户名',
+    `password` VARCHAR(255) NOT NULL COMMENT '密码(BCrypt加密)',
+    `nickname` VARCHAR(50) DEFAULT NULL COMMENT '昵称',
+    `role` VARCHAR(20) NOT NULL DEFAULT 'USER' COMMENT '角色:ADMIN/USER',
+    `status` TINYINT NOT NULL DEFAULT 1 COMMENT '状态:0-禁用,1-启用',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除:0-未删除,1-已删除',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_username` (`username`, `deleted`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
+
+-- 交易计划表
+CREATE TABLE IF NOT EXISTS `trade_plan` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `user_id` BIGINT NOT NULL DEFAULT 1 COMMENT '用户ID',
+    `source_type` VARCHAR(20) NOT NULL COMMENT '来源类型:position/selection',
+    `source_id` BIGINT NOT NULL COMMENT '来源ID',
+    `stock_name` VARCHAR(50) NOT NULL COMMENT '股票名称',
+    `stock_code` VARCHAR(20) NOT NULL COMMENT '股票代码',
+    `plan_type` VARCHAR(20) NOT NULL COMMENT '计划类型:建仓/加仓/减仓/清仓',
+    `plan_amount` DECIMAL(18, 2) NOT NULL COMMENT '计划金额',
+    `plan_shares` INT NOT NULL COMMENT '计划股数',
+    `plan_price` DECIMAL(10, 2) NOT NULL COMMENT '计划价格',
+    `plan_date` DATE NOT NULL COMMENT '计划日期',
+    `plan_reason` VARCHAR(500) NOT NULL COMMENT '计划理由',
+    `execute_time` VARCHAR(20) NOT NULL COMMENT '执行时段:早盘/尾盘',
+    `plan_status` VARCHAR(20) DEFAULT '待实施' COMMENT '计划状态:待实施/已实施/未实施',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除:0-未删除,1-已删除',
+    PRIMARY KEY (`id`),
+    KEY `idx_source` (`source_type`, `source_id`),
+    KEY `idx_plan_date` (`plan_date`),
+    KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='交易计划表';
+
 -- 初始化系统配置
 INSERT INTO `system_config` (`config_key`, `config_value`, `config_desc`) VALUES
 ('outflow_threshold', '-2.3', '资金流出阈值(%)'),
 ('inflow_threshold', '4', '资金流入阈值(%)');
+
+-- 初始化管理员账号（密码: admin123，BCrypt加密）
+INSERT INTO `user` (`username`, `password`, `nickname`, `role`, `status`)
+VALUES ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '管理员', 'ADMIN', 1);
 
 -- 插入部分示例股票数据
 INSERT INTO `stock_info` (`stock_code`, `stock_name`, `pinyin`, `first_letter`, `market`) VALUES

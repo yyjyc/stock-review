@@ -3,7 +3,7 @@
     <div class="page-header">
       <div class="title-section">
         <h2>活跃市值复盘</h2>
-        <el-button type="primary" link @click="showConfigDialog = true">
+        <el-button v-if="userStore.isAdmin()" type="primary" link @click="showConfigDialog = true">
           <el-icon><Setting /></el-icon>
           阈值设置
         </el-button>
@@ -24,7 +24,7 @@
       </div>
     </div>
 
-    <el-card class="input-card">
+    <el-card class="input-card" v-if="userStore.isAdmin()">
       <el-form :model="form" :rules="rules" ref="formRef" label-width="100px" inline>
         <el-form-item label="日期" prop="recordDate">
           <el-date-picker
@@ -67,7 +67,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="operationTip" label="操作提示" />
-        <el-table-column label="操作" width="80">
+        <el-table-column label="操作" width="80" v-if="userStore.isAdmin()">
           <template #default="{ row }">
             <el-button type="danger" link @click="handleDelete(row)">
               删除
@@ -167,6 +167,10 @@ import {
   setInflowThreshold
 } from '@/api/config'
 import { getTradeDateInfo } from '@/api/tradeCalendar'
+import { useUserStore } from '@/store/user'
+
+const emit = defineEmits(['complete'])
+const userStore = useUserStore()
 
 const formRef = ref(null)
 const initFormRef = ref(null)
@@ -250,6 +254,8 @@ const handleSubmit = async () => {
     resetForm()
     loadTableData()
     loadLatestData()
+    // 触发完成事件
+    emit('complete')
   } finally {
     loading.value = false
   }
@@ -264,6 +270,8 @@ const handleInit = async () => {
     showInitDialog.value = false
     loadTableData()
     loadLatestData()
+    // 触发完成事件
+    emit('complete')
   } finally {
     initLoading.value = false
   }

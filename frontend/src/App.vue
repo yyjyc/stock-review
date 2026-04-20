@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div class="app-container" v-if="!isLoginPage">
     <el-container>
       <el-aside width="220px" class="sidebar">
         <div class="logo">
@@ -51,11 +51,27 @@
             <span>选股模块</span>
             <el-badge v-if="stepCompleted[3]" is-dot class="step-dot" type="success" />
           </el-menu-item>
-          <el-menu-item index="/settings">
+          <el-menu-item index="/settings" v-if="userStore.isAdmin()">
             <el-icon><Setting /></el-icon>
             <span>系统设置</span>
           </el-menu-item>
+          <el-menu-item index="/admin/users" v-if="userStore.isAdmin()">
+            <el-icon><User /></el-icon>
+            <span>用户管理</span>
+          </el-menu-item>
         </el-menu>
+
+        <div class="user-info">
+          <div class="user-detail">
+            <el-icon><UserFilled /></el-icon>
+            <span class="user-name">{{ userStore.state.userInfo?.nickname || userStore.state.userInfo?.username || '' }}</span>
+            <el-tag v-if="userStore.isAdmin()" type="danger" size="small" class="role-tag">管理员</el-tag>
+          </div>
+          <el-button type="text" class="logout-btn" @click="handleLogout">
+            <el-icon><SwitchButton /></el-icon>
+            退出
+          </el-button>
+        </div>
       </el-aside>
       <el-main class="main-content">
         <div class="review-banner" v-if="reviewStarted && reviewInProgress && !isReviewGuidePage">
@@ -68,15 +84,19 @@
       </el-main>
     </el-container>
   </div>
+  <router-view v-else />
 </template>
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useUserStore } from '@/store/user'
 
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
 const activeMenu = computed(() => route.path)
+const isLoginPage = computed(() => route.path === '/login')
 
 const currentStep = ref(0)
 const stepCompleted = ref([false, false, false, false])
@@ -117,14 +137,19 @@ const continueReviewGuide = () => {
   router.push('/review-guide')
 }
 
+function getStorageKey(key) {
+  const userId = userStore.state.userInfo?.id || 'guest'
+  return `${key}_${userId}`
+}
+
 const loadReviewProgress = () => {
   const today = new Date().toDateString()
-  const savedDate = localStorage.getItem('reviewDate')
+  const savedDate = localStorage.getItem(getStorageKey('reviewDate'))
   
   if (savedDate === today) {
-    const savedStarted = localStorage.getItem('reviewStarted')
-    const savedStep = localStorage.getItem('reviewStep')
-    const savedCompleted = localStorage.getItem('stepCompleted')
+    const savedStarted = localStorage.getItem(getStorageKey('reviewStarted'))
+    const savedStep = localStorage.getItem(getStorageKey('reviewStep'))
+    const savedCompleted = localStorage.getItem(getStorageKey('stepCompleted'))
     
     if (savedStarted === 'true') {
       reviewStarted.value = true
@@ -143,10 +168,10 @@ const loadReviewProgress = () => {
       }
     }
   } else {
-    localStorage.setItem('reviewDate', today)
-    localStorage.setItem('reviewStarted', 'false')
-    localStorage.setItem('reviewStep', '0')
-    localStorage.setItem('stepCompleted', JSON.stringify([false, false, false, false]))
+    localStorage.setItem(getStorageKey('reviewDate'), today)
+    localStorage.setItem(getStorageKey('reviewStarted'), 'false')
+    localStorage.setItem(getStorageKey('reviewStep'), '0')
+    localStorage.setItem(getStorageKey('stepCompleted'), JSON.stringify([false, false, false, false]))
     currentStep.value = 0
     stepCompleted.value = [false, false, false, false]
     reviewInProgress.value = false
@@ -155,8 +180,13 @@ const loadReviewProgress = () => {
 }
 
 const saveReviewProgress = () => {
-  localStorage.setItem('reviewStep', currentStep.value.toString())
-  localStorage.setItem('stepCompleted', JSON.stringify(stepCompleted.value))
+  localStorage.setItem(getStorageKey('reviewStep'), currentStep.value.toString())
+  localStorage.setItem(getStorageKey('stepCompleted'), JSON.stringify(stepCompleted.value))
+}
+
+const handleLogout = () => {
+  userStore.logout()
+  router.push('/login')
 }
 
 watch([currentStep, stepCompleted], () => {
@@ -164,8 +194,11 @@ watch([currentStep, stepCompleted], () => {
   reviewInProgress.value = currentStep.value < 4
 }, { deep: true })
 
-onMounted(() => {
-  loadReviewProgress()
+onMounted(async () => {
+  if (!isLoginPage.value) {
+    await userStore.fetchUserInfo()
+    loadReviewProgress()
+  }
   
   window.addEventListener('review-step-change', (e) => {
     currentStep.value = e.detail.step
@@ -180,12 +213,6 @@ onMounted(() => {
   window.addEventListener('review-step-complete', (e) => {
     if (e.detail.step >= 0 && e.detail.step < 4) {
       stepCompleted.value[e.detail.step] = true
-    }
-  })
-  
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'reviewStarted') {
-      reviewStarted.value = e.newValue === 'true'
     }
   })
 })
@@ -290,6 +317,50 @@ html, body, #app, .app-container {
           right: 15px;
           top: 50%;
           transform: translateY(-50%);
+        }
+      }
+    }
+
+    .user-info {
+      padding: 12px 15px;
+      border-top: 1px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      .user-detail {
+        display: flex;
+        align-items: center;
+        color: #bfcbd9;
+        font-size: 13px;
+        overflow: hidden;
+
+        .el-icon {
+          margin-right: 6px;
+          flex-shrink: 0;
+        }
+
+        .user-name {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          max-width: 80px;
+        }
+
+        .role-tag {
+          margin-left: 6px;
+          flex-shrink: 0;
+        }
+      }
+
+      .logout-btn {
+        color: #909399;
+        padding: 0;
+        font-size: 12px;
+        flex-shrink: 0;
+
+        &:hover {
+          color: #F56C6C;
         }
       }
     }

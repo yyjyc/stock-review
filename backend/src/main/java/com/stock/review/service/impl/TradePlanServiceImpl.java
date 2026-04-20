@@ -15,6 +15,7 @@ import com.stock.review.mapper.TradePlanMapper;
 import com.stock.review.service.PositionService;
 import com.stock.review.service.TradeCalendarService;
 import com.stock.review.service.TradePlanService;
+import com.stock.review.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -55,6 +56,7 @@ public class TradePlanServiceImpl extends ServiceImpl<TradePlanMapper, TradePlan
         List<PlanDTO> plans = new ArrayList<>();
         
         LambdaQueryWrapper<TradePlan> wrapper = new LambdaQueryWrapper<TradePlan>()
+                .eq(TradePlan::getUserId, SecurityUtils.getCurrentUserId())
                 .ge(TradePlan::getPlanDate, startDate)
                 .le(TradePlan::getPlanDate, endDate)
                 .orderByAsc(TradePlan::getPlanDate);
@@ -115,6 +117,7 @@ public class TradePlanServiceImpl extends ServiceImpl<TradePlanMapper, TradePlan
             StockSelection selection = stockSelectionMapper.selectById(plan.getSourceId());
             if (selection != null) {
                 Position position = new Position();
+                position.setUserId(SecurityUtils.getCurrentUserId());
                 position.setStockName(selection.getStockName());
                 position.setStockCode(selection.getStockCode());
                 position.setHoldShares(shares);
@@ -131,6 +134,7 @@ public class TradePlanServiceImpl extends ServiceImpl<TradePlanMapper, TradePlan
         }
         
         StockOperation operation = new StockOperation();
+        operation.setUserId(SecurityUtils.getCurrentUserId());
         operation.setStockName(plan.getStockName());
         operation.setStockCode(plan.getStockCode());
         operation.setOperationType(plan.getPlanType());
@@ -173,6 +177,7 @@ public class TradePlanServiceImpl extends ServiceImpl<TradePlanMapper, TradePlan
         }
         
         StockOperation operation = new StockOperation();
+        operation.setUserId(SecurityUtils.getCurrentUserId());
         operation.setStockName(plan.getStockName());
         operation.setStockCode(plan.getStockCode());
         operation.setOperationType(plan.getPlanType());
@@ -219,6 +224,7 @@ public class TradePlanServiceImpl extends ServiceImpl<TradePlanMapper, TradePlan
             
             if (shouldExpire) {
                 StockOperation operation = new StockOperation();
+                operation.setUserId(plan.getUserId());
                 operation.setStockName(plan.getStockName());
                 operation.setStockCode(plan.getStockCode());
                 operation.setOperationType(plan.getPlanType());
@@ -252,6 +258,7 @@ public class TradePlanServiceImpl extends ServiceImpl<TradePlanMapper, TradePlan
         
         if (existing == null) {
             existing = new TradePlan();
+            existing.setUserId(SecurityUtils.getCurrentUserId());
             existing.setSourceType("position");
             existing.setSourceId(positionId);
             existing.setPlanStatus("待实施");
@@ -286,6 +293,7 @@ public class TradePlanServiceImpl extends ServiceImpl<TradePlanMapper, TradePlan
         
         if (existing == null) {
             existing = new TradePlan();
+            existing.setUserId(SecurityUtils.getCurrentUserId());
             existing.setSourceType("selection");
             existing.setSourceId(selectionId);
             existing.setPlanStatus("待实施");
@@ -318,6 +326,8 @@ public class TradePlanServiceImpl extends ServiceImpl<TradePlanMapper, TradePlan
         
         Page<TradePlan> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<TradePlan> wrapper = new LambdaQueryWrapper<>();
+        
+        wrapper.eq(TradePlan::getUserId, SecurityUtils.getCurrentUserId());
         
         if (startDate != null && !startDate.isEmpty()) {
             wrapper.ge(TradePlan::getPlanDate, LocalDate.parse(startDate));

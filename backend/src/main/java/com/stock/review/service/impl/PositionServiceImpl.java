@@ -10,6 +10,7 @@ import com.stock.review.entity.dto.PositionSummaryDTO;
 import com.stock.review.mapper.PositionMapper;
 import com.stock.review.service.PositionService;
 import com.stock.review.service.TradePlanService;
+import com.stock.review.utils.SecurityUtils;
 import com.stock.review.utils.StockApiUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class PositionServiceImpl extends ServiceImpl<PositionMapper, Position> i
     @Override
     public Position createPosition(String stockName, String stockCode, BigDecimal amount, BigDecimal price) {
         Position position = new Position();
+        position.setUserId(SecurityUtils.getCurrentUserId());
         position.setStockName(stockName);
         position.setStockCode(stockCode);
         position.setHoldAmount(amount);
@@ -120,6 +122,8 @@ public class PositionServiceImpl extends ServiceImpl<PositionMapper, Position> i
     public Page<Position> pageList(Integer pageNum, Integer pageSize, String status, String sortProp, String sortOrder) {
         LambdaQueryWrapper<Position> wrapper = new LambdaQueryWrapper<>();
         
+        wrapper.eq(Position::getUserId, SecurityUtils.getCurrentUserId());
+        
         if (StrUtil.isNotBlank(status)) {
             wrapper.eq(Position::getStatus, status);
         }
@@ -170,6 +174,7 @@ public class PositionServiceImpl extends ServiceImpl<PositionMapper, Position> i
     @Override
     public PositionSummaryDTO getSummary() {
         List<Position> positions = list(new LambdaQueryWrapper<Position>()
+                .eq(Position::getUserId, SecurityUtils.getCurrentUserId())
                 .eq(Position::getStatus, "持仓中"));
         
         BigDecimal totalAmount = BigDecimal.ZERO;
@@ -228,6 +233,7 @@ public class PositionServiceImpl extends ServiceImpl<PositionMapper, Position> i
     @Override
     public Position getByStockCode(String stockCode) {
         return getOne(new LambdaQueryWrapper<Position>()
+                .eq(Position::getUserId, SecurityUtils.getCurrentUserId())
                 .eq(Position::getStockCode, stockCode)
                 .eq(Position::getStatus, "持仓中"));
     }
@@ -235,6 +241,7 @@ public class PositionServiceImpl extends ServiceImpl<PositionMapper, Position> i
     @Override
     public List<Position> getActivePositions() {
         return list(new LambdaQueryWrapper<Position>()
+                .eq(Position::getUserId, SecurityUtils.getCurrentUserId())
                 .eq(Position::getStatus, "持仓中"));
     }
     
@@ -294,6 +301,7 @@ public class PositionServiceImpl extends ServiceImpl<PositionMapper, Position> i
         }
         
         Position position = new Position();
+        position.setUserId(SecurityUtils.getCurrentUserId());
         position.setStockName(dto.getStockName());
         position.setStockCode(dto.getStockCode());
         position.setHoldAmount(dto.getHoldAmount());

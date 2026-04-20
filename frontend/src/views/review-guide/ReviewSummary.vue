@@ -255,6 +255,8 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['data-loaded'])
+
 const summaryContent = ref(null)
 const exporting = ref(false)
 
@@ -342,10 +344,22 @@ const loadSummaryData = async () => {
         executeTime: p.executeTime,
         planReason: p.planReason
       }))
+      
+    // 数据加载完成，触发事件
+    emit('data-loaded')
   } catch (e) {
     console.error('加载汇总数据失败', e)
   }
 }
+
+// 暴露刷新方法给父组件
+const refreshData = async () => {
+  await loadSummaryData()
+}
+
+defineExpose({
+  refreshData
+})
 
 const exportToImage = async () => {
   if (!summaryContent.value) return
