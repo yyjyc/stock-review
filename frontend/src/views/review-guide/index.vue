@@ -84,11 +84,14 @@
 <script setup>
 import { ref, reactive, onMounted, onUnmounted, watch, provide } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useUserStore } from '@/store/user'
 import ActiveMarket from '@/views/active-market/index.vue'
 import Operation from '@/views/operation/index.vue'
 import Position from '@/views/position/index.vue'
 import Selection from '@/views/selection/index.vue'
 import ReviewSummary from './ReviewSummary.vue'
+
+const userStore = useUserStore()
 
 const reviewStarted = ref(false)
 const currentStep = ref(0)
@@ -108,6 +111,11 @@ const reviewData = reactive({
 
 const stepCompleted = ref([false, false, false, false])
 
+function getStorageKey(key) {
+  const userId = userStore.state.userInfo?.id || 'guest'
+  return `${key}_${userId}`
+}
+
 const emitStepChange = (step, completed = false) => {
   const event = new CustomEvent('review-step-change', {
     detail: { step, completed }
@@ -124,7 +132,7 @@ const emitStepComplete = (step) => {
 
 const startReview = () => {
   reviewStarted.value = true
-  localStorage.setItem('reviewStarted', 'true')
+  localStorage.setItem(getStorageKey('reviewStarted'), 'true')
   emitStepChange(currentStep.value)
 }
 
@@ -162,7 +170,7 @@ const resetReview = () => {
   reviewStarted.value = false
   currentStep.value = 0
   stepCompleted.value = [false, false, false, false]
-  localStorage.removeItem('reviewStarted')
+  localStorage.removeItem(getStorageKey('reviewStarted'))
   emitStepChange(0)
   saveProgress()
   ElMessage.success('已重置复盘进度')
@@ -179,18 +187,18 @@ const collectReviewData = async () => {
 }
 
 const saveProgress = () => {
-  localStorage.setItem('reviewStep', currentStep.value.toString())
-  localStorage.setItem('stepCompleted', JSON.stringify(stepCompleted.value))
+  localStorage.setItem(getStorageKey('reviewStep'), currentStep.value.toString())
+  localStorage.setItem(getStorageKey('stepCompleted'), JSON.stringify(stepCompleted.value))
 }
 
 const loadProgress = () => {
   const today = new Date().toDateString()
-  const savedDate = localStorage.getItem('reviewDate')
+  const savedDate = localStorage.getItem(getStorageKey('reviewDate'))
   
   if (savedDate === today) {
-    const savedStarted = localStorage.getItem('reviewStarted')
-    const savedStep = localStorage.getItem('reviewStep')
-    const savedCompleted = localStorage.getItem('stepCompleted')
+    const savedStarted = localStorage.getItem(getStorageKey('reviewStarted'))
+    const savedStep = localStorage.getItem(getStorageKey('reviewStep'))
+    const savedCompleted = localStorage.getItem(getStorageKey('stepCompleted'))
     
     if (savedStarted === 'true') {
       reviewStarted.value = true
@@ -208,10 +216,10 @@ const loadProgress = () => {
       }
     }
   } else {
-    localStorage.setItem('reviewDate', today)
-    localStorage.setItem('reviewStarted', 'false')
-    localStorage.setItem('reviewStep', '0')
-    localStorage.setItem('stepCompleted', JSON.stringify([false, false, false, false]))
+    localStorage.setItem(getStorageKey('reviewDate'), today)
+    localStorage.setItem(getStorageKey('reviewStarted'), 'false')
+    localStorage.setItem(getStorageKey('reviewStep'), '0')
+    localStorage.setItem(getStorageKey('stepCompleted'), JSON.stringify([false, false, false, false]))
   }
   
   if (reviewStarted.value) {

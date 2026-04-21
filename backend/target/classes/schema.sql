@@ -233,7 +233,7 @@ INSERT INTO `system_config` (`config_key`, `config_value`, `config_desc`) VALUES
 
 -- 初始化管理员账号（密码: admin123，BCrypt加密）
 INSERT INTO `user` (`username`, `password`, `nickname`, `role`, `status`)
-VALUES ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '管理员', 'ADMIN', 1);
+VALUES ('admin', '$2a$10$foKO70h//oVy3tf0Ve3qi.LWSPOj5OBi.lTr6uovbbWZeQikSmM0C', '管理员', 'ADMIN', 1);
 
 -- 插入部分示例股票数据
 INSERT INTO `stock_info` (`stock_code`, `stock_name`, `pinyin`, `first_letter`, `market`) VALUES
