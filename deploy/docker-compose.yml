@@ -27,8 +27,8 @@ services:
 
   backend:
     build:
-      context: ../backend
-      dockerfile: ../deploy/Dockerfile.backend
+      context: ..
+      dockerfile: deploy/Dockerfile.backend
     container_name: stock-backend
     restart: always
     depends_on:
@@ -50,8 +50,8 @@ services:
 
   frontend:
     build:
-      context: ../frontend
-      dockerfile: ../deploy/Dockerfile.frontend
+      context: ..
+      dockerfile: deploy/Dockerfile.frontend
     container_name: stock-frontend
     restart: always
     depends_on:

@@ -2,10 +2,13 @@ FROM maven:3.8-openjdk-8-slim AS builder
 
 WORKDIR /app
 
-COPY pom.xml .
+# 复制 Maven 配置文件（使用阿里云镜像加速）
+COPY deploy/settings.xml /root/.m2/settings.xml
+
+COPY backend/pom.xml .
 RUN mvn dependency:go-offline -B
 
-COPY src ./src
+COPY backend/src ./src
 RUN mvn clean package -DskipTests -B
 
 FROM openjdk:8-jre-slim
